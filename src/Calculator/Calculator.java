@@ -32,6 +32,8 @@ public class Calculator implements ActionListener {
 	private int multiplier;
 	private double weight;
 	private String selectionValue = "Maintain";
+	private boolean requiredInfoFilled = true;
+	
 	
 	public static void main(String[] args) {
 		Calculator myFrame = new Calculator();
@@ -132,7 +134,29 @@ public class Calculator implements ActionListener {
 
 			CalculateBtn.setBounds(33, 130, 117, 29);
 			frame.getContentPane().add(CalculateBtn);
-			CalculateBtn.addActionListener(this);
+			CalculateBtn.addActionListener(new ActionListener(){
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					 if(weightTextBox.getText().isEmpty()){
+							JOptionPane.showMessageDialog(frame, "Please enter your weight");
+						}
+						 else{
+							 weight = Double.parseDouble(weightTextBox.getText());
+						 }
+						 
+						if(e.getSource() == CalculateBtn){
+							if(!weightTextBox.getText().isEmpty() &&!maleRadioButton.isSelected() && !femaleRadioButton.isSelected()){
+								JOptionPane.showMessageDialog(frame, "Please select a gender");
+							}
+							else{
+							calculateMaco(weight,selectionValue,calcCalories(weight,multiplier));
+							}
+						}
+					
+				}
+				
+			});
 			
 			maleRadioButton.setBounds(148, 30, 61, 23);
 			maleRadioButton.addActionListener(new ActionListener(){
@@ -141,7 +165,6 @@ public class Calculator implements ActionListener {
 				
 			});
 			frame.getContentPane().add(maleRadioButton);
-			
 			femaleRadioButton.setBounds(223, 30, 78, 23);
 			femaleRadioButton.addActionListener(new ActionListener(){
 				@Override
@@ -155,46 +178,66 @@ public class Calculator implements ActionListener {
 			editableGroup.add(femaleRadioButton);
 			editableGroup.add(maleRadioButton);
 
-			/*btnSubtract.setBounds(188, 110, 117, 29);
-			//btnSubtract.addActionListener(this);
-			frame.getContentPane().add(btnSubtract);
+			btnSubtract.setBounds(188, 110, 117, 29);
+			btnSubtract.addActionListener(new ActionListener(){
 
-			btnSave.setBounds(188, 130, 117, 29);
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(!caloriesTextBox.getText().isEmpty()){
+						calculateMaco(weight,selectionValue,calcCalories(weight,multiplier)-250);
+					}
+					else{
+						requiredInfoFilled = false;
+						JOptionPane.showMessageDialog(frame, "Calculate your calories before subtracting");
+					}
+					
+				}
+				
+			});
+			frame.getContentPane().add(btnSubtract);
+			
+			btnAdd.setBounds(33, 110, 117, 29);
+			btnAdd.addActionListener(new ActionListener(){
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(e.getSource() == btnAdd){
+						if(!caloriesTextBox.getText().isEmpty()){
+							calculateMaco(weight,selectionValue,calcCalories(weight,multiplier)+250);
+						}
+						else{
+							requiredInfoFilled = false;
+							JOptionPane.showMessageDialog(frame, "Calculate your calories before subtracting");
+						}
+					}
+				}
+				
+			});
+			frame.getContentPane().add(btnAdd);
+
+			/*btnSave.setBounds(188, 130, 117, 29);
 			//btnSave.addActionListener(this);
 			frame.getContentPane().add(btnSave);
 
-			btnAdd.setBounds(33, 110, 117, 29);
-			//btnAdd.addActionListener(this);
-			frame.getContentPane().add(btnAdd);
+			
 
 			
 		*/
 
 	}
 	public void actionPerformed(ActionEvent e) {
-		 if(weightTextBox.getText().isEmpty()){
-			JOptionPane.showMessageDialog(frame, "Please enter your weight");
-		}
-		 else{
-			 weight = Double.parseDouble(weightTextBox.getText());
-		 }
-		 
-		if(e.getSource() == CalculateBtn){
-			if(!weightTextBox.getText().isEmpty() &&!maleRadioButton.isSelected() && !femaleRadioButton.isSelected()){
-				JOptionPane.showMessageDialog(frame, "Please select a gender");
-			}
-			else{
-			calculateMaco(weight,multiplier,selectionValue);
-			}
-		}
+		
+		/*if(e.getSource() == btnSubtract){
+			
+		}*/
+		
 	}
-
-	public void calculateMaco(double weight, int multiplier, String selectedValue) {
+//Calculate macro depending on if user wants to maintain, cut, or bulk
+	public void calculateMaco(double weight,String selectedValue, int calories) {
 		double proteinPercentage;
 		double fatPercentage;
-		int calories, carbs,proteins,fats,carbCalories,proteinCalories, fatCalories;
-		
-		calories = (int) (weight * multiplier);
+		int  carbs,proteins,fats,carbCalories,proteinCalories, fatCalories;
+	
 		this.caloriesTextBox.setText(Integer.toString(calories));
 		if(selectedValue.equals("Cut")){
 			proteinPercentage = 1.1;
@@ -212,13 +255,16 @@ public class Calculator implements ActionListener {
 		proteins = (int) Math.round((weight * proteinPercentage));
 		proteinCalories = proteins * 4;
 		fatCalories = (int) Math.round((calories - proteinCalories) * fatPercentage);
-		fats = fatCalories / 9;
+		fats = (int)Math.round(fatCalories / 9.0);
 		carbCalories = calories - proteinCalories- fatCalories;
 		carbs = (int)Math.round(carbCalories/4.00);
 		setText(calories,carbs,carbCalories,proteins,proteinCalories,fats,fatCalories);
 		
 	}
-
+//Calculates user calories
+	public int calcCalories(double weight, int multiplier){
+		return (int)(weight * multiplier);
+	}
 	private void setText(int calories, int carbs, int carbCalories, int proteins, int proteinCalories, int fats,
 			int fatCalories) {
 		this.proteinTextBox.setText(Integer.toString(proteins) + "g");
@@ -237,7 +283,8 @@ public class Calculator implements ActionListener {
 	public void setMultiplier(int value){this.multiplier = value;}
 
 	public String getSelectedValue() {return this.selectionValue;}
-	public void setSelectedValue(String value) { this.selectionValue = value ;}
+	public void setSelectedValue(String value) { this.selectionValue = value;}
+	public boolean getRequiredInfoFilled(){return this.requiredInfoFilled;}
 	
 	
 	
